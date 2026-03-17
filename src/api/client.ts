@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'sonner';
 import { useAuthStore } from '../store/authStore';
 
 const BASE_URL = 'http://localhost:8080/api/v1';
@@ -38,6 +39,15 @@ apiClient.interceptors.response.use(
       } else {
         logout();
       }
+    }
+    // Show toast for all non-401 errors (401 is handled above via refresh/logout)
+    if (error.response?.status !== 401) {
+      const message: string =
+        error.response?.data?.message ??
+        error.response?.data?.error ??
+        error.message ??
+        'An unexpected error occurred';
+      toast.error(message);
     }
     return Promise.reject(error);
   }
