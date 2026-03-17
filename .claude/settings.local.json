@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(cp:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm list:*)",
+      "Bash(npm view:*)",
+      "Bash(node -e \"const v=require\\(''''fs''''\\).readFileSync\\(''''/dev/stdin'''',''''utf8''''\\); const arr=JSON.parse\\(v\\); console.log\\(arr.slice\\(-10\\).join\\(''''\\\\n''''\\)\\)\")",
+      "Bash(npx shadcn@latest init -d)",
+      "Bash(npx shadcn@latest add button card badge input label select table dialog dropdown-menu separator avatar skeleton --yes)",
+      "Bash(npx shadcn@latest add button card badge input label select table dialog dropdown-menu separator avatar skeleton --yes --overwrite)",
+      "Bash(npx shadcn@latest add sonner --yes --overwrite)",
+      "Bash(node -e \"const p = require\\(''''./node_modules/shadcn/package.json''''\\); console.log\\(JSON.stringify\\(p.exports, null, 2\\)\\)\")",
+      "Bash(npx vite:*)"
+    ]
+  }
+}
