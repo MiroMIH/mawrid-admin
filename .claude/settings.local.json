@@ -14,7 +14,8 @@
       "Bash(npx shadcn@latest add button card badge input label select table dialog dropdown-menu separator avatar skeleton --yes --overwrite)",
       "Bash(npx shadcn@latest add sonner --yes --overwrite)",
       "Bash(node -e \"const p = require\\(''''./node_modules/shadcn/package.json''''\\); console.log\\(JSON.stringify\\(p.exports, null, 2\\)\\)\")",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(npx shadcn@latest add alert-dialog form tabs tooltip scroll-area sheet collapsible --yes --overwrite)"
     ]
   }
 }
