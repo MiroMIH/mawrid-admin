@@ -23,6 +23,22 @@ export function AuthPage() {
       <style>{`
         .auth-root * { box-sizing: border-box; }
 
+        /* ── Autofill detection (animation-name trick, works Chrome/Edge/Safari) ── */
+        @keyframes fl-autofill-on  { from {} to {} }
+        @keyframes fl-autofill-off { from {} to {} }
+        input:-webkit-autofill { animation-name: fl-autofill-on;  animation-duration: 1ms; }
+        input:not(:-webkit-autofill) { animation-name: fl-autofill-off; animation-duration: 1ms; }
+
+        /* Override browser's blue/yellow autofill background */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+          -webkit-box-shadow: 0 0 0 100px #F7F6F3 inset !important;
+          -webkit-text-fill-color: #1A1A18 !important;
+          caret-color: #1A1A18;
+          transition: background-color 9999s ease-in-out 0s;
+        }
+
         @keyframes authShake {
           0%,100% { transform: translateX(0); }
           18%     { transform: translateX(-8px); }

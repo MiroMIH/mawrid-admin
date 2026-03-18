@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff, Loader2, Check, ArrowRight, ShieldCheck } from 'lucide-react';
-import { FloatingInput } from './FloatingInput';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useLogin } from '../hooks/useAuth';
 
 const schema = z.object({
@@ -42,93 +43,100 @@ export function LoginForm() {
   return (
     <div style={{ animation: shaking ? 'authShake 0.55s ease-in-out' : undefined }}>
 
-      {/* Admin badge */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '4px 10px',
-          borderRadius: 6,
-          background: 'rgba(13,13,13,0.06)',
-          border: '1px solid rgba(13,13,13,0.1)',
-          marginBottom: 16,
-        }}>
-          <ShieldCheck style={{ width: 12, height: 12, color: '#0D0D0D', opacity: 0.6 }} />
-          <span style={{
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: 10.5,
-            fontWeight: 600,
-            color: '#0D0D0D',
-            opacity: 0.55,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-          }}>
+      {/* Admin badge + header */}
+      <div className="mb-8">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-muted/50 mb-4">
+          <ShieldCheck className="w-3 h-3 text-muted-foreground" />
+          <span
+            className="text-[10px] font-semibold text-muted-foreground tracking-widest uppercase"
+            style={{ fontFamily: 'DM Sans, sans-serif' }}
+          >
             Espace administration
           </span>
         </div>
 
-        <h1 style={{
-          fontFamily: 'Syne, sans-serif',
-          fontWeight: 700,
-          fontSize: 28,
-          color: '#1A1A18',
-          lineHeight: 1.15,
-          marginBottom: 6,
-        }}>
+        <h1
+          className="text-[28px] font-bold text-foreground leading-tight mb-1.5"
+          style={{ fontFamily: 'Syne, sans-serif' }}
+        >
           Bon retour 👋
         </h1>
-        <p style={{
-          fontFamily: 'DM Sans, sans-serif',
-          fontSize: 14,
-          color: '#7A7A72',
-          lineHeight: 1.5,
-        }}>
+        <p
+          className="text-sm text-muted-foreground"
+          style={{ fontFamily: 'DM Sans, sans-serif' }}
+        >
           Connectez-vous au backoffice Mawrid
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
 
         {/* Email */}
-        <FloatingInput
-          label="Adresse email"
-          type="email"
-          error={errors.email?.message}
-          {...register('email')}
-        />
+        <div className="space-y-1.5">
+          <Label htmlFor="email" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+            Adresse email
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="admin@mawrid.dz"
+            className={errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}
+            {...register('email')}
+          />
+          {errors.email && (
+            <p className="text-[11px] text-destructive" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+              {errors.email.message}
+            </p>
+          )}
+        </div>
 
         {/* Password */}
-        <FloatingInput
-          label="Mot de passe"
-          type={showPassword ? 'text' : 'password'}
-          error={errors.password?.message}
-          suffix={
+        <div className="space-y-1.5">
+          <Label htmlFor="password" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+            Mot de passe
+          </Label>
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="••••••••"
+              className={[
+                'pr-10',
+                errors.password ? 'border-destructive focus-visible:ring-destructive' : '',
+              ].join(' ')}
+              {...register('password')}
+            />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              style={{ padding: 4, color: '#ABABAB', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 0 }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              tabIndex={-1}
             >
               {showPassword
-                ? <EyeOff style={{ width: 15, height: 15 }} />
-                : <Eye    style={{ width: 15, height: 15 }} />}
+                ? <EyeOff className="w-4 h-4" />
+                : <Eye    className="w-4 h-4" />}
             </button>
-          }
-          {...register('password')}
-        />
+          </div>
+          {errors.password && (
+            <p className="text-[11px] text-destructive" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+              {errors.password.message}
+            </p>
+          )}
+        </div>
 
-        {/* Error message */}
+        {/* Error */}
         {login.isError && (
-          <div style={{
-            marginBottom: 16,
-            padding: '10px 14px',
-            borderRadius: 8,
-            background: 'rgba(239,68,68,0.06)',
-            border: '1px solid rgba(239,68,68,0.18)',
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: 13,
-            color: '#C53030',
-          }}>
+          <div
+            className="rounded-lg px-4 py-3 text-sm"
+            style={{
+              background: 'rgba(239,68,68,0.06)',
+              border: '1px solid rgba(239,68,68,0.18)',
+              color: '#C53030',
+              fontFamily: 'DM Sans, sans-serif',
+            }}
+          >
             Email ou mot de passe incorrect.
           </div>
         )}
@@ -137,42 +145,35 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={login.isPending || success}
-          className="w-full flex items-center justify-center gap-2"
+          className="w-full flex items-center justify-center gap-2 h-11 rounded-[10px] font-semibold text-[15px] transition-all duration-150 disabled:opacity-75 disabled:cursor-not-allowed mt-2"
           style={{
-            marginTop: 8,
-            height: 50,
             background: success ? '#1A6B3C' : '#0D0D0D',
             color: '#FFFFFF',
             border: '1.5px solid transparent',
-            borderRadius: 11,
             fontFamily: 'Syne, sans-serif',
-            fontWeight: 600,
-            fontSize: 15,
-            cursor: login.isPending || success ? 'default' : 'pointer',
-            transition: 'transform 0.15s, box-shadow 0.15s, border-color 0.2s, background 0.3s',
             letterSpacing: '0.02em',
           }}
           onMouseEnter={(e) => {
             if (!login.isPending && !success) {
               const b = e.currentTarget;
               b.style.transform = 'translateY(-1px)';
-              b.style.boxShadow = '0 6px 20px rgba(0,0,0,0.2)';
+              b.style.boxShadow = '0 6px 20px rgba(0,0,0,0.18)';
               b.style.borderColor = '#F5A623';
             }
           }}
           onMouseLeave={(e) => {
             const b = e.currentTarget;
-            b.style.transform = 'translateY(0)';
-            b.style.boxShadow = 'none';
+            b.style.transform = '';
+            b.style.boxShadow = '';
             b.style.borderColor = 'transparent';
           }}
         >
           {login.isPending ? (
-            <><Loader2 style={{ width: 16, height: 16 }} className="animate-spin" />Connexion…</>
+            <><Loader2 className="w-4 h-4 animate-spin" />Connexion…</>
           ) : success ? (
-            <><Check style={{ width: 16, height: 16 }} />Connecté !</>
+            <><Check className="w-4 h-4" />Connecté !</>
           ) : (
-            <>Se connecter<ArrowRight style={{ width: 16, height: 16 }} /></>
+            <>Se connecter<ArrowRight className="w-4 h-4" /></>
           )}
         </button>
 

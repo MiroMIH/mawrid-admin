@@ -16,7 +16,8 @@
       "Bash(node -e \"const p = require\\(''''./node_modules/shadcn/package.json''''\\); console.log\\(JSON.stringify\\(p.exports, null, 2\\)\\)\")",
       "Bash(npx vite:*)",
       "Bash(npx shadcn@latest add alert-dialog form tabs tooltip scroll-area sheet collapsible --yes --overwrite)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx shadcn@latest add input --yes)"
     ]
   }
 }
