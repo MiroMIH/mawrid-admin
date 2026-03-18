@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastProvider } from './components/ui/Toast';
 import { Toaster } from './components/ui/sonner';
 import { AppLayout } from './layout/AppLayout';
-import { LoginPage } from './pages/LoginPage';
+import { AuthPage } from './features/auth/pages/AuthPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { AttributesPage } from './pages/AttributesPage';
@@ -27,7 +27,7 @@ export default function App() {
         <Toaster position="top-right" richColors closeButton />
         <BrowserRouter>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<AuthPage />} />
             <Route element={<AppLayout />}>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/categories" element={<CategoriesPage />} />

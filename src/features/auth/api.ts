@@ -1,26 +1,23 @@
 import { apiClient } from '../../api/client';
 import type { ApiResponse, User } from '../../types';
-
-interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  userId: number;
-}
+import type { LoginRequest, RegisterRequest, AuthTokenResponse } from './auth.types';
 
 export const authApi = {
-  login: async (payload: LoginPayload) => {
-    const res = await apiClient.post<ApiResponse<LoginResponse>>('/auth/login', payload);
+  login: async (payload: LoginRequest): Promise<AuthTokenResponse> => {
+    const res = await apiClient.post<ApiResponse<AuthTokenResponse>>('/auth/login', payload);
     return res.data.data;
   },
-  logout: async () => {
+
+  register: async (payload: Omit<RegisterRequest, 'confirmPassword'>): Promise<AuthTokenResponse> => {
+    const res = await apiClient.post<ApiResponse<AuthTokenResponse>>('/auth/register', payload);
+    return res.data.data;
+  },
+
+  logout: async (): Promise<void> => {
     await apiClient.post('/auth/logout');
   },
-  getProfile: async () => {
+
+  getProfile: async (): Promise<User> => {
     const res = await apiClient.get<ApiResponse<User>>('/users/me');
     return res.data.data;
   },
