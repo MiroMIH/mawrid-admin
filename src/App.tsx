@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { AttributesPage } from './pages/AttributesPage';
 import { UsersPage } from './pages/UsersPage';
+import { DemandesPage } from './pages/DemandesPage';
 import { MatchingPage } from './pages/MatchingPage';
 import { StatsPage } from './pages/StatsPage';
 
@@ -33,6 +34,7 @@ export default function App() {
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/attributes" element={<AttributesPage />} />
               <Route path="/users" element={<UsersPage />} />
+              <Route path="/demandes" element={<DemandesPage />} />
               <Route path="/matching" element={<MatchingPage />} />
               <Route path="/simulation" element={<MatchingPage />} />
               <Route path="/stats" element={<StatsPage />} />

@@ -61,7 +61,7 @@ export interface CategoryStats {
   hasActiveChildren: boolean;
 }
 
-export type DemandeStatus = 'OPEN' | 'CLOSED' | 'CANCELLED';
+export type DemandeStatus = 'OPEN' | 'CLOSED' | 'CANCELLED' | 'EXPIRED';
 
 export interface Demande {
   id: number;
@@ -74,6 +74,74 @@ export interface Demande {
   categoryId: number;
   wilaya: string;
   createdAt: string;
+}
+
+export interface DemandeAttribute {
+  key: string;
+  value: string;
+  custom: boolean;
+}
+
+export interface DemandeSummary {
+  id: string;
+  title: string;
+  quantity: number;
+  unit: string;
+  deadline?: string;
+  status: DemandeStatus;
+  qualityScore: number;
+  categoryId: number;
+  categoryName: string;
+  buyerWilaya?: string;
+  totalReponses: number;
+  disponibleCount: number;
+  createdAt: string;
+  daysUntilDeadline: number;
+}
+
+export interface DemandeDetail {
+  id: string;
+  title: string;
+  description?: string;
+  quantity: number;
+  unit: string;
+  deadline?: string;
+  wilaya?: string;
+  qualityScore: number;
+  status: DemandeStatus;
+  categoryId: number;
+  categoryName: string;
+  buyerId: string;
+  buyerCompanyName?: string;
+  attachmentUrl?: string;
+  attributes: DemandeAttribute[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ScoreBreakdown {
+  demandeId: string;
+  supplierId: string;
+  supplierName: string;
+  supplierCompany?: string;
+  supplierWilaya?: string;
+  categoryScore: number;
+  proximityScore: number;
+  urgencyScore: number;
+  buyerScore: number;
+  quantityScore: number;
+  baseScore: number;
+  decayFactor: number;
+  finalScore: number;
+  notificationTier: string;
+}
+
+export interface DemandeStats {
+  totalOpen: number;
+  totalClosed: number;
+  totalCancelled: number;
+  totalExpired: number;
+  totalAll: number;
 }
 
 export interface DashboardStats {

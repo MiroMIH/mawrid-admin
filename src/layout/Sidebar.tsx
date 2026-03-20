@@ -4,6 +4,7 @@ import {
   FolderTree,
   Tags,
   Users,
+  FileText,
   GitBranch,
   FlaskConical,
   BarChart3,
@@ -11,13 +12,14 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/categories', label: 'Category Tree', icon: FolderTree },
-  { to: '/attributes', label: 'Attributes', icon: Tags },
-  { to: '/users', label: 'Users', icon: Users },
-  { to: '/matching', label: 'Matching', icon: GitBranch },
-  { to: '/simulation', label: 'Simulation', icon: FlaskConical },
-  { to: '/stats', label: 'Stats', icon: BarChart3 },
+  { to: '/',          label: 'Dashboard',    icon: LayoutDashboard, end: true },
+  { to: '/categories',label: 'Category Tree',icon: FolderTree },
+  { to: '/attributes',label: 'Attributes',   icon: Tags },
+  { to: '/users',     label: 'Users',        icon: Users },
+  { to: '/demandes',  label: 'Demandes',     icon: FileText },
+  { to: '/matching',  label: 'Matching',     icon: GitBranch },
+  { to: '/simulation',label: 'Simulation',   icon: FlaskConical },
+  { to: '/stats',     label: 'Stats',        icon: BarChart3 },
 ];
 
 export function Sidebar() {

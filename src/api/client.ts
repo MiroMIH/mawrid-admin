@@ -23,7 +23,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
       const { refreshToken, setTokens, logout } = useAuthStore.getState();
       if (refreshToken) {
@@ -40,8 +40,8 @@ apiClient.interceptors.response.use(
         logout();
       }
     }
-    // Show toast for all non-401 errors (401 is handled above via refresh/logout)
-    if (error.response?.status !== 401) {
+    // Show toast for all errors except those handled by refresh/logout
+    if (error.response?.status !== 401 && error.response?.status !== 403) {
       const message: string =
         error.response?.data?.message ??
         error.response?.data?.error ??

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useUsers, useToggleUser } from '../hooks/useUsers';
 import { useToast } from '../components/ui/Toast';
+import { apiClient } from '../api/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import {
   Search, RefreshCw, Users, ShoppingBag, Truck,
-  CheckCircle2, ChevronLeft, ChevronRight, UserX, UserCheck,
+  CheckCircle2, ChevronLeft, ChevronRight, UserX, UserCheck, Download,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { User } from '../types';
@@ -48,6 +49,20 @@ export function UsersPage() {
   const { data, isLoading, refetch, isFetching } = useUsers({ page, size: 20 });
   const toggleUser = useToggleUser();
   const { showToast } = useToast();
+
+  const handleExport = async () => {
+    try {
+      const res = await apiClient.get('/admin/users/export', { responseType: 'blob' });
+      const url = URL.createObjectURL(new Blob([res.data], { type: 'text/csv' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'users.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      showToast('Export failed', 'error');
+    }
+  };
 
   const handleToggle = async (user: User) => {
     try {
@@ -114,16 +129,27 @@ export function UsersPage() {
             {data?.totalElements ?? 0} total accounts on the platform
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => refetch()}
-          disabled={isFetching}
-          className="gap-2"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            className="gap-2"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Export CSV
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="gap-2"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </motion.div>
 
       {/* Summary cards */}
