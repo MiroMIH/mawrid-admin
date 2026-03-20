@@ -10,7 +10,6 @@ import { useLogin } from '../hooks/useAuth';
 const schema = z.object({
   email:    z.string().email('Email invalide'),
   password: z.string().min(1, 'Mot de passe requis'),
-  role:     z.enum(['BUYER', 'SUPPLIER']),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -26,7 +25,6 @@ export function LoginForm() {
     defaultValues: {
       email:    'superadmin@mawrid.dz',
       password: 'SuperAdmin@2026',
-      role:     'BUYER',
     },
   });
 
@@ -137,7 +135,8 @@ export function LoginForm() {
               fontFamily: 'DM Sans, sans-serif',
             }}
           >
-            Email ou mot de passe incorrect.
+            {(login.error as { response?: { data?: { message?: string } } })?.response?.data?.message
+              ?? 'Email ou mot de passe incorrect.'}
           </div>
         )}
 

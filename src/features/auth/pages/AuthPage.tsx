@@ -5,6 +5,7 @@
  * Mobile: left panel hidden, full-width form.
  */
 import { useEffect } from 'react';
+import { Cog } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import { AuthLeftPanel } from '../components/AuthLeftPanel';
@@ -79,7 +80,7 @@ export function AuthPage() {
               background: '#0D0D0D',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <span style={{ fontFamily: 'serif', fontSize: 20, color: '#F5A623' }}>م</span>
+              <Cog style={{ width: 20, height: 20, color: '#F5A623' }} />
             </div>
             <span style={{
               fontFamily: 'Syne, sans-serif',

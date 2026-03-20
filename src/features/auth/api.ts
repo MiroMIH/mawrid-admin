@@ -4,7 +4,7 @@ import type { LoginRequest, RegisterRequest, AuthTokenResponse } from './auth.ty
 
 export const authApi = {
   login: async (payload: LoginRequest): Promise<AuthTokenResponse> => {
-    const res = await apiClient.post<ApiResponse<AuthTokenResponse>>('/auth/login', payload);
+    const res = await apiClient.post<ApiResponse<AuthTokenResponse>>('/auth/admin/login', payload);
     return res.data.data;
   },
 

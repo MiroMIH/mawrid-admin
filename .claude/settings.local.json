@@ -17,7 +17,8 @@
       "Bash(npx vite:*)",
       "Bash(npx shadcn@latest add alert-dialog form tabs tooltip scroll-area sheet collapsible --yes --overwrite)",
       "Bash(npm run:*)",
-      "Bash(npx shadcn@latest add input --yes)"
+      "Bash(npx shadcn@latest add input --yes)",
+      "Bash(xargs wc:*)"
     ]
   }
 }

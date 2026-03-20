@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api';
 import { useAuthStore } from '../../../store/authStore';
-import type { LoginRequest, RegisterRequest } from '../auth.types';
+import type { RegisterRequest } from '../auth.types';
 import type { User } from '../../../types';
 
 export function useLogin() {
@@ -10,15 +10,11 @@ export function useLogin() {
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: (data: LoginRequest) => authApi.login(data),
+    mutationFn: (data: { email: string; password: string }) => authApi.login(data),
     onSuccess: async (data) => {
       setTokens(data.accessToken, data.refreshToken);
-      if (data.user) {
-        setUser(data.user as User);
-      } else {
-        const profile = await authApi.getProfile();
-        setUser(profile);
-      }
+      const profile: User = data.user ? (data.user as User) : await authApi.getProfile();
+      setUser(profile);
       navigate('/');
     },
   });

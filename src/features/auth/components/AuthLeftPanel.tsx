@@ -4,6 +4,8 @@
  * Aesthetic: Vercel × Linear × industrial weight.
  */
 
+import { Cog } from 'lucide-react';
+
 const STATS = [
   { value: '892', label: 'fournisseurs actifs' },
   { value: '18',  label: 'secteurs industriels' },
@@ -168,15 +170,7 @@ export function AuthLeftPanel() {
               flexShrink: 0,
             }}
           >
-            <span style={{
-              fontFamily: 'serif',
-              fontSize: 22,
-              color: '#F5A623',
-              lineHeight: 1,
-              textShadow: '0 0 16px rgba(245,166,35,0.5)',
-            }}>
-              م
-            </span>
+            <Cog style={{ width: 22, height: 22, color: '#F5A623', filter: 'drop-shadow(0 0 8px rgba(245,166,35,0.5))' }} />
           </div>
           <div>
             <div style={{

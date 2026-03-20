@@ -1,9 +1,6 @@
-export type AuthRole = 'BUYER' | 'SUPPLIER';
-
 export interface LoginRequest {
   email: string;
   password: string;
-  role: AuthRole;
 }
 
 export interface RegisterRequest {
