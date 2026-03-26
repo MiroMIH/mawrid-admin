@@ -1,6 +1,6 @@
 import { useDashboardStats } from '../hooks/useStats';
-import { useCategoryTree } from '../hooks/useCategories';
 import { useUsers } from '../hooks/useUsers';
+import { useDemandeStats } from '../hooks/useDemandes';
 import {
   Card, CardContent, CardHeader, CardTitle, CardDescription,
 } from '@/components/ui/card';
@@ -9,15 +9,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
-  Users, FolderTree, FileText, TrendingUp,
+  Users, FileText, TrendingUp,
   ArrowUpRight, Activity, Layers, CheckCircle2, Zap,
+  MessageSquare, FolderTree,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, BarChart, Bar,
+  Tooltip, ResponsiveContainer, BarChart, Bar, Cell,
+  PieChart, Pie, Legend,
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Category } from '../types';
 
 /* ── animation variants ── */
 const fadeUp = {
@@ -39,35 +40,19 @@ const scaleIn = {
   show: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
 };
 
-/* ── static data ── */
-const activityData = [
-  { day: 'Mon', demandes: 4, responses: 12 },
-  { day: 'Tue', demandes: 7, responses: 18 },
-  { day: 'Wed', demandes: 5, responses: 15 },
-  { day: 'Thu', demandes: 9, responses: 22 },
-  { day: 'Fri', demandes: 6, responses: 20 },
-  { day: 'Sat', demandes: 3, responses: 8 },
-  { day: 'Sun', demandes: 2, responses: 5 },
-];
-
-const statusItems = [
-  { label: 'API Health', status: 'Operational' },
-  { label: 'Database', status: 'Operational' },
-  { label: 'Matching Engine', status: 'Active' },
-  { label: 'Notifications', status: 'Active' },
-];
-
 /* ── helpers ── */
-function countCategories(cats: Category[] | undefined): number {
-  if (!cats) return 0;
-  return cats.reduce((acc, cat) => acc + 1 + countCategories(cat.children ?? []), 0);
-}
-
 const roleBadgeClass: Record<string, string> = {
-  BUYER: 'bg-blue-100 text-blue-700 border-blue-200',
-  SUPPLIER: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-  ADMIN: 'bg-violet-100 text-violet-700 border-violet-200',
+  BUYER:      'bg-blue-100 text-blue-700 border-blue-200',
+  SUPPLIER:   'bg-emerald-100 text-emerald-700 border-emerald-200',
+  ADMIN:      'bg-violet-100 text-violet-700 border-violet-200',
   SUPERADMIN: 'bg-orange-100 text-orange-700 border-orange-200',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  OPEN:      '#10b981',
+  CLOSED:    '#3b82f6',
+  CANCELLED: '#ef4444',
+  EXPIRED:   '#f59e0b',
 };
 
 /* ─────────────────────────────── */
@@ -77,13 +62,13 @@ interface StatCardProps {
   label: string;
   value: number | string;
   icon: React.ElementType;
-  change: string;
+  sub?: string;
   accent: string;
   loading: boolean;
   index: number;
 }
 
-function StatCard({ label, value, icon: Icon, change, accent, loading, index }: StatCardProps) {
+function StatCard({ label, value, icon: Icon, sub, accent, loading, index }: StatCardProps) {
   return (
     <motion.div
       variants={fadeUp}
@@ -91,7 +76,6 @@ function StatCard({ label, value, icon: Icon, change, accent, loading, index }: 
       whileHover={{ y: -3, transition: { duration: 0.2 } }}
     >
       <Card className="relative overflow-hidden border-border/60 bg-card h-full">
-        {/* accent bar */}
         <div className={`absolute top-0 left-0 right-0 h-0.5 ${accent}`} />
         <CardContent className="pt-5 pb-5">
           <div className="flex items-start justify-between gap-4">
@@ -110,11 +94,12 @@ function StatCard({ label, value, icon: Icon, change, accent, loading, index }: 
                   {value}
                 </motion.p>
               )}
-              <div className="flex items-center gap-1 pt-0.5">
-                <ArrowUpRight className="w-3 h-3 text-emerald-500" />
-                <span className="text-xs text-emerald-600 font-medium">{change}</span>
-                <span className="text-xs text-muted-foreground">this week</span>
-              </div>
+              {sub && (
+                <div className="flex items-center gap-1 pt-0.5">
+                  <ArrowUpRight className="w-3 h-3 text-emerald-500" />
+                  <span className="text-xs text-emerald-600 font-medium">{sub}</span>
+                </div>
+              )}
             </div>
             <div className={`p-2.5 rounded-xl ${accent} bg-opacity-10 shrink-0`}>
               <Icon className="w-5 h-5 text-foreground/70" />
@@ -127,7 +112,7 @@ function StatCard({ label, value, icon: Icon, change, accent, loading, index }: 
 }
 
 /* ─────────────────────────────── */
-/*  Custom tooltip for charts      */
+/*  Custom tooltip                 */
 /* ─────────────────────────────── */
 function ChartTooltip({ active, payload, label }: {
   active?: boolean;
@@ -154,43 +139,65 @@ function ChartTooltip({ active, payload, label }: {
 /* ─────────────────────────────── */
 export function DashboardPage() {
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
-  const { data: tree } = useCategoryTree();
   const { data: users } = useUsers({ page: 0, size: 5 });
+  const { data: demandeStats } = useDemandeStats();
+
+  /* ── demande status pie data ── */
+  const statusPieData = demandeStats
+    ? [
+        { name: 'Open',      value: demandeStats.totalOpen,      fill: STATUS_COLORS.OPEN      },
+        { name: 'Closed',    value: demandeStats.totalClosed,    fill: STATUS_COLORS.CLOSED    },
+        { name: 'Cancelled', value: demandeStats.totalCancelled, fill: STATUS_COLORS.CANCELLED },
+        { name: 'Expired',   value: demandeStats.totalExpired,   fill: STATUS_COLORS.EXPIRED   },
+      ].filter((d) => d.value > 0)
+    : [];
+
+  /* ── response rate bar ── */
+  const responseRatePercent = stats?.responseRate != null
+    ? Math.round(stats.responseRate * 100)
+    : null;
 
   const statCards: Omit<StatCardProps, 'loading' | 'index'>[] = [
     {
       label: 'Total Users',
-      value: stats?.totalUsers ?? users?.totalElements ?? '—',
+      value: stats?.totalUsers ?? '—',
       icon: Users,
       accent: 'bg-blue-500',
-      change: '+12%',
-    },
-    {
-      label: 'Categories',
-      value: stats?.totalCategories ?? countCategories(tree),
-      icon: FolderTree,
-      accent: 'bg-violet-500',
-      change: '+3%',
+      sub: `${stats?.totalBuyers ?? '—'} buyers · ${stats?.totalSuppliers ?? '—'} suppliers`,
     },
     {
       label: 'Open Demandes',
-      value: stats?.openDemandes ?? stats?.totalDemandes ?? '—',
+      value: stats?.openDemandes ?? '—',
       icon: FileText,
       accent: 'bg-amber-500',
-      change: '+8%',
+      sub: `${stats?.totalDemandes ?? '—'} total`,
+    },
+    {
+      label: 'Total Responses',
+      value: stats?.totalReponses ?? '—',
+      icon: MessageSquare,
+      accent: 'bg-emerald-500',
+      sub: responseRatePercent != null ? `${responseRatePercent}% response rate` : undefined,
     },
     {
       label: 'Active Suppliers',
       value: stats?.totalSuppliers ?? '—',
       icon: TrendingUp,
-      accent: 'bg-emerald-500',
-      change: '+5%',
+      accent: 'bg-violet-500',
+      sub: `${stats?.activeCategories ?? '—'} active categories`,
     },
   ];
 
-  const today = new Date().toLocaleDateString('en-GB', {
+  const today = new Date().toLocaleDateString('fr-DZ', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
+
+  const statusItems = [
+    { label: 'API Health',        status: 'Operational' },
+    { label: 'Base de données',   status: 'Operational' },
+    { label: 'Moteur de matching', status: 'Active'     },
+    { label: 'Notifications',     status: 'Active'      },
+  ];
 
   return (
     <motion.div
@@ -203,7 +210,7 @@ export function DashboardPage() {
       <motion.div variants={fadeUp} custom={0} className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">{today}</p>
+          <p className="text-muted-foreground text-sm mt-0.5 capitalize">{today}</p>
         </div>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -215,7 +222,7 @@ export function DashboardPage() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          All systems operational
+          Tous les systèmes opérationnels
         </motion.div>
       </motion.div>
 
@@ -231,70 +238,78 @@ export function DashboardPage() {
         ))}
       </motion.div>
 
-      {/* ── Charts ── */}
+      {/* ── Charts row ── */}
       <motion.div
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
         variants={staggerContainer}
         initial="hidden"
         animate="show"
       >
-        {/* Area chart */}
+        {/* Demande status distribution */}
         <motion.div variants={scaleIn}>
-          <Card className="border-border/60">
+          <Card className="border-border/60 h-full">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-sm font-semibold">Weekly Activity</CardTitle>
-                  <CardDescription className="text-xs mt-0.5">Demandes & responses over 7 days</CardDescription>
+                  <CardTitle className="text-sm font-semibold">Statut des demandes</CardTitle>
+                  <CardDescription className="text-xs mt-0.5">
+                    {demandeStats ? `${demandeStats.totalAll} demandes au total` : 'Distribution par statut'}
+                  </CardDescription>
                 </div>
                 <div className="p-2 rounded-lg bg-muted">
-                  <Activity className="w-4 h-4 text-muted-foreground" />
+                  <FileText className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-[#FFC107]" />
-                  Demandes
+              {statusPieData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie
+                      data={statusPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={85}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {statusPieData.map((entry, i) => (
+                        <Cell key={i} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<ChartTooltip />} />
+                    <Legend
+                      iconType="circle"
+                      iconSize={8}
+                      formatter={(value) => (
+                        <span className="text-xs text-muted-foreground">{value}</span>
+                      )}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-[220px]">
+                  <div className="text-center space-y-2">
+                    <Skeleton className="h-[110px] w-[110px] rounded-full mx-auto" />
+                    <Skeleton className="h-3 w-32 mx-auto" />
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-[#111111]" />
-                  Responses
-                </div>
-              </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={activityData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-                  <defs>
-                    <linearGradient id="gradDemandes" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#FFC107" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#FFC107" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="gradResponses" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#111111" stopOpacity={0.1} />
-                      <stop offset="95%" stopColor="#111111" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<ChartTooltip />} />
-                  <Area type="monotone" dataKey="demandes" stroke="#FFC107" strokeWidth={2} fill="url(#gradDemandes)" name="Demandes" />
-                  <Area type="monotone" dataKey="responses" stroke="#111111" strokeWidth={2} fill="url(#gradResponses)" name="Responses" />
-                </AreaChart>
-              </ResponsiveContainer>
+              )}
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Bar chart */}
+        {/* User breakdown */}
         <motion.div variants={scaleIn}>
-          <Card className="border-border/60">
+          <Card className="border-border/60 h-full">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-sm font-semibold">Demandes by Day</CardTitle>
-                  <CardDescription className="text-xs mt-0.5">Volume distribution — last 7 days</CardDescription>
+                  <CardTitle className="text-sm font-semibold">Répartition des utilisateurs</CardTitle>
+                  <CardDescription className="text-xs mt-0.5">
+                    {stats ? `${stats.totalUsers ?? 0} comptes enregistrés` : 'Par rôle'}
+                  </CardDescription>
                 </div>
                 <div className="p-2 rounded-lg bg-muted">
                   <Layers className="w-4 h-4 text-muted-foreground" />
@@ -302,21 +317,47 @@ export function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-[#FFC107]" />
-                  Demandes
+              {stats ? (
+                <>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <BarChart
+                      data={[
+                        { name: 'Acheteurs',    value: stats.totalBuyers ?? 0,    fill: '#3b82f6' },
+                        { name: 'Fournisseurs', value: stats.totalSuppliers ?? 0, fill: '#10b981' },
+                      ]}
+                      margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                      <Tooltip content={<ChartTooltip />} />
+                      <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={48} name="Utilisateurs">
+                        {[{ fill: '#3b82f6' }, { fill: '#10b981' }].map((entry, i) => (
+                          <Cell key={i} fill={entry.fill} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="bg-blue-50 rounded-lg p-3 text-center">
+                      <p className="text-xl font-bold text-blue-700">{stats.totalBuyers ?? '—'}</p>
+                      <p className="text-xs text-blue-500 mt-0.5">Acheteurs</p>
+                    </div>
+                    <div className="bg-emerald-50 rounded-lg p-3 text-center">
+                      <p className="text-xl font-bold text-emerald-700">{stats.totalSuppliers ?? '—'}</p>
+                      <p className="text-xs text-emerald-500 mt-0.5">Fournisseurs</p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-3 pt-2">
+                  <Skeleton className="h-[160px] w-full" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Skeleton className="h-16 rounded-lg" />
+                    <Skeleton className="h-16 rounded-lg" />
+                  </div>
                 </div>
-              </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={activityData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<ChartTooltip />} />
-                  <Bar dataKey="demandes" fill="#FFC107" radius={[4, 4, 0, 0]} name="Demandes" maxBarSize={40} />
-                </BarChart>
-              </ResponsiveContainer>
+              )}
             </CardContent>
           </Card>
         </motion.div>
@@ -335,8 +376,8 @@ export function DashboardPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-sm font-semibold">Recent Users</CardTitle>
-                  <CardDescription className="text-xs mt-0.5">Latest registered accounts</CardDescription>
+                  <CardTitle className="text-sm font-semibold">Derniers inscrits</CardTitle>
+                  <CardDescription className="text-xs mt-0.5">Comptes récemment créés</CardDescription>
                 </div>
                 <Badge variant="secondary" className="text-xs font-medium">
                   {users?.totalElements ?? '—'} total
@@ -389,7 +430,9 @@ export function DashboardPage() {
                           <p className="text-sm font-medium text-foreground truncate leading-none">
                             {user.firstName} {user.lastName}
                           </p>
-                          <p className="text-xs text-muted-foreground truncate mt-0.5">{user.email}</p>
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">
+                            {user.companyName ? `${user.companyName} · ` : ''}{user.email}
+                          </p>
                         </div>
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${roleBadgeClass[user.role] ?? 'bg-gray-100 text-gray-700'}`}>
                           {user.role}
@@ -409,7 +452,7 @@ export function DashboardPage() {
           <Card className="border-border/60 flex-1">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-semibold">Platform Status</CardTitle>
+                <CardTitle className="text-sm font-semibold">Statut plateforme</CardTitle>
                 <div className="flex items-center gap-1.5">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -442,10 +485,8 @@ export function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Quick info */}
-          <motion.div
-            whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
-          >
+          {/* Platform summary */}
+          <motion.div whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}>
             <Card className="border-border/60 bg-[#111111] text-white">
               <CardContent className="pt-5 pb-5">
                 <div className="flex items-center gap-3 mb-3">
@@ -460,16 +501,24 @@ export function DashboardPage() {
                 <Separator className="bg-white/10 mb-3" />
                 <div className="grid grid-cols-2 gap-3 text-center">
                   <div>
-                    <p className="text-xl font-bold text-[#FFC107]">
-                      {stats?.totalBuyers ?? '—'}
-                    </p>
-                    <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Buyers</p>
+                    <p className="text-xl font-bold text-[#FFC107]">{stats?.totalCategories ?? '—'}</p>
+                    <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Catégories</p>
                   </div>
                   <div>
                     <p className="text-xl font-bold text-[#FFC107]">
-                      {stats?.totalSuppliers ?? '—'}
+                      {responseRatePercent != null ? `${responseRatePercent}%` : '—'}
                     </p>
-                    <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Suppliers</p>
+                    <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Taux réponse</p>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-white/10 grid grid-cols-2 gap-3 text-center">
+                  <div>
+                    <p className="text-xl font-bold text-[#FFC107]">{stats?.totalBuyers ?? '—'}</p>
+                    <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Acheteurs</p>
+                  </div>
+                  <div>
+                    <p className="text-xl font-bold text-[#FFC107]">{stats?.totalSuppliers ?? '—'}</p>
+                    <p className="text-[10px] text-white/50 mt-0.5 uppercase tracking-wider">Fournisseurs</p>
                   </div>
                 </div>
               </CardContent>

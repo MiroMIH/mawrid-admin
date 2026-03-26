@@ -150,6 +150,8 @@ export interface DashboardStats {
   totalSuppliers?: number;
   totalDemandes?: number;
   openDemandes?: number;
+  totalReponses?: number;
+  responseRate?: number;
   totalCategories?: number;
   activeCategories?: number;
   [key: string]: number | undefined;

@@ -3,7 +3,11 @@ import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../features/auth/api';
 
-export function Topbar() {
+interface TopbarProps {
+  sidebarWidth: string;
+}
+
+export function Topbar({ sidebarWidth }: TopbarProps) {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
@@ -17,7 +21,10 @@ export function Topbar() {
   };
 
   return (
-    <header className="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-30">
+    <header
+      className="fixed top-0 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-30 transition-[left] duration-200 ease-in-out"
+      style={{ left: sidebarWidth }}
+    >
       {/* Search */}
       <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2 w-72">
         <Search className="w-4 h-4 text-gray-400" />
