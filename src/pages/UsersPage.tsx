@@ -3,7 +3,7 @@ import { useUsers, useToggleUser } from '../hooks/useUsers';
 import { useToast } from '../components/ui/Toast';
 import { apiClient } from '../api/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
