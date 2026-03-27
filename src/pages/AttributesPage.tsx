@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useCategoryTree, useCategoryAttributes, useAddAttribute, useUpdateAttribute, useDeleteAttribute } from '../hooks/useCategories';
-import { Card, CardHeader } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
-import { Modal } from '../components/ui/Modal';
-import { Input } from '../components/ui/Input';
-import { Badge } from '../components/ui/Badge';
+import { Card, CardHeader } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Modal } from '../components/ui/modal';
+import { Input } from '../components/ui/input';
+import { Badge } from '../components/ui/badge';
 import { useToast } from '../components/ui/Toast';
 import type { Category, Attribute, AttributeType } from '../types';
 import { Plus, Pencil, Trash2, FolderOpen, Tags, ChevronRight } from 'lucide-react';

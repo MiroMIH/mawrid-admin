@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   RefreshCw, ChevronLeft, ChevronRight, MoreHorizontal,
@@ -716,7 +716,7 @@ export function DemandesPage() {
                           {/* Actions */}
                           <TableCell
                             className="pr-6 text-right"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e: React.MouseEvent) => e.stopPropagation()}
                           >
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>

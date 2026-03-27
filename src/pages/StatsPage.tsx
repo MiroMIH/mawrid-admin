@@ -1,8 +1,8 @@
 import { useDashboardStats } from '../hooks/useStats';
 import { useCategoryTree } from '../hooks/useCategories';
 import { useUsers } from '../hooks/useUsers';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
@@ -93,7 +93,7 @@ export function StatsPage() {
                     cy="50%"
                     outerRadius={90}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }: { name: string; percent?: number }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                     labelLine={false}
                   >
                     {roleData.map((_, idx) => (
