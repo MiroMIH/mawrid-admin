@@ -10,11 +10,11 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Users, FileText, TrendingUp,
-  ArrowUpRight, Activity, Layers, CheckCircle2, Zap,
-  MessageSquare, FolderTree,
+  ArrowUpRight, Layers, CheckCircle2, Zap,
+  MessageSquare,
 } from 'lucide-react';
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, BarChart, Bar, Cell,
   PieChart, Pie, Legend,
 } from 'recharts';

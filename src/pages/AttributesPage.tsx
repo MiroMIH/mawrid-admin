@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCategoryTree, useCategoryAttributes, useAddAttribute, useUpdateAttribute, useDeleteAttribute } from '../hooks/useCategories';
-import { Card, CardHeader } from '../components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Modal } from '../components/ui/modal';
 import { Input } from '../components/ui/input';
@@ -10,10 +10,10 @@ import type { Category, Attribute, AttributeType } from '../types';
 import { Plus, Pencil, Trash2, FolderOpen, Tags, ChevronRight } from 'lucide-react';
 
 function attrTypeBadge(type: AttributeType) {
-  const map: Record<AttributeType, 'default' | 'info' | 'success'> = {
+  const map: Record<AttributeType, 'default' | 'secondary' | 'outline'> = {
     TEXT: 'default',
-    NUMBER: 'info',
-    SELECT: 'success',
+    NUMBER: 'secondary',
+    SELECT: 'outline',
   };
   return <Badge variant={map[type]}>{type}</Badge>;
 }
@@ -130,7 +130,7 @@ export function AttributesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Category selector */}
-        <Card padding={false} className="lg:col-span-1">
+        <Card className="lg:col-span-1">
           <div className="p-4 border-b border-gray-100">
             <h2 className="text-sm font-semibold text-gray-700">Select Category</h2>
           </div>
@@ -156,18 +156,25 @@ export function AttributesPage() {
 
         {/* Attributes panel */}
         <div className="lg:col-span-2">
-          <Card padding={false}>
-            <CardHeader
-              title={selectedCategoryId
-                ? `Attributes — ${flatCategories.find((f) => f.cat.id === selectedCategoryId)?.cat.name ?? ''}`
-                : 'Select a category'}
-              description={selectedCategoryId ? 'Direct and inherited attributes' : 'Choose a category from the left panel'}
-              action={selectedCategoryId ? (
-                <Button size="sm" onClick={openAdd} icon={<Plus className="w-4 h-4" />}>
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between gap-4">
+              <div>
+                <CardTitle className="text-base">
+                  {selectedCategoryId
+                    ? `Attributes — ${flatCategories.find((f) => f.cat.id === selectedCategoryId)?.cat.name ?? ''}`
+                    : 'Select a category'}
+                </CardTitle>
+                <CardDescription>
+                  {selectedCategoryId ? 'Direct and inherited attributes' : 'Choose a category from the left panel'}
+                </CardDescription>
+              </div>
+              {selectedCategoryId && (
+                <Button size="sm" onClick={openAdd}>
+                  <Plus className="w-4 h-4" />
                   Add Attribute
                 </Button>
-              ) : undefined}
-            />
+              )}
+            </CardHeader>
 
             {!selectedCategoryId ? (
               <div className="py-16 text-center text-gray-400">
@@ -181,7 +188,7 @@ export function AttributesPage() {
             ) : !attributes || attributes.length === 0 ? (
               <div className="py-12 text-center text-gray-400">
                 <p className="mb-3">No attributes defined for this category</p>
-                <Button size="sm" onClick={openAdd} icon={<Plus className="w-4 h-4" />}>Add first attribute</Button>
+                <Button size="sm" onClick={openAdd}><Plus className="w-4 h-4" />Add first attribute</Button>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
@@ -196,8 +203,8 @@ export function AttributesPage() {
                         <span className="text-sm font-semibold text-gray-900">{attr.label}</span>
                         <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded font-mono text-gray-600">{attr.key}</code>
                         {attrTypeBadge(attr.type)}
-                        {attr.required && <Badge variant="warning">Required</Badge>}
-                        {attr.inherited && <Badge variant="info">Inherited</Badge>}
+                        {attr.required && <Badge variant="destructive">Required</Badge>}
+                        {attr.inherited && <Badge variant="secondary">Inherited</Badge>}
                       </div>
                       {attr.type === 'SELECT' && attr.options && (
                         <p className="text-xs text-gray-400 mt-1">
@@ -239,20 +246,24 @@ export function AttributesPage() {
       >
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Key"
-              value={form.key}
-              onChange={(e) => setForm((f) => ({ ...f, key: e.target.value }))}
-              placeholder="e.g. marque"
-              hint="Lowercase letters and underscores only"
-              disabled={modal === 'edit'}
-            />
-            <Input
-              label="Label"
-              value={form.label}
-              onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
-              placeholder="e.g. Brand name"
-            />
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">Key</label>
+              <Input
+                value={form.key}
+                onChange={(e) => setForm((f) => ({ ...f, key: e.target.value }))}
+                placeholder="e.g. marque"
+                disabled={modal === 'edit'}
+              />
+              <p className="text-xs text-gray-400">Lowercase letters and underscores only</p>
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">Label</label>
+              <Input
+                value={form.label}
+                onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
+                placeholder="e.g. Brand name"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -268,22 +279,26 @@ export function AttributesPage() {
                 <option value="SELECT">SELECT</option>
               </select>
             </div>
-            <Input
-              label="Display Order"
-              type="number"
-              value={form.displayOrder}
-              onChange={(e) => setForm((f) => ({ ...f, displayOrder: Number(e.target.value) }))}
-              min={1}
-            />
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">Display Order</label>
+              <Input
+                type="number"
+                value={form.displayOrder}
+                onChange={(e) => setForm((f) => ({ ...f, displayOrder: Number(e.target.value) }))}
+                min={1}
+              />
+            </div>
           </div>
 
           {form.type === 'SELECT' && (
-            <Input
-              label="Options (comma separated)"
-              value={form.options}
-              onChange={(e) => setForm((f) => ({ ...f, options: e.target.value }))}
-              placeholder="Neuf, Occasion, Reconditionné"
-            />
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">Options (comma separated)</label>
+              <Input
+                value={form.options}
+                onChange={(e) => setForm((f) => ({ ...f, options: e.target.value }))}
+                placeholder="Neuf, Occasion, Reconditionné"
+              />
+            </div>
           )}
 
           <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
@@ -300,8 +315,7 @@ export function AttributesPage() {
             <Button variant="outline" onClick={closeModal}>Cancel</Button>
             <Button
               onClick={handleSave}
-              loading={addAttribute.isPending || updateAttribute.isPending}
-              disabled={!form.key || !form.label}
+              disabled={!form.key || !form.label || addAttribute.isPending || updateAttribute.isPending}
             >
               {modal === 'add' ? 'Add Attribute' : 'Save Changes'}
             </Button>

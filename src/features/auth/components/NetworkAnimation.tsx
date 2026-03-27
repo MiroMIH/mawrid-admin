@@ -53,7 +53,7 @@ function innerLabel(i: number) {
   return {
     x:      +(n.x + 5 * Math.cos(θ)).toFixed(2),
     y:      +(n.y + 5 * Math.sin(θ)).toFixed(2),
-    anchor: i === 0 || i === 3 ? 'middle' : i < 3 ? 'start' : 'end',
+    anchor: (i === 0 || i === 3 ? 'middle' : i < 3 ? 'start' : 'end') as 'middle' | 'start' | 'end',
   };
 }
 
@@ -63,9 +63,10 @@ function outerLabel(i: number) {
   return {
     x:      +(n.x + 4.5 * Math.cos(θ)).toFixed(2),
     y:      +(n.y + 4.5 * Math.sin(θ)).toFixed(2),
-    anchor:
+    anchor: (
       i === 0 || i === 4 ? 'middle' :
-      i >= 1 && i <= 3   ? 'start'  : 'end',
+      i >= 1 && i <= 3   ? 'start'  : 'end'
+    ) as 'middle' | 'start' | 'end',
   };
 }
 

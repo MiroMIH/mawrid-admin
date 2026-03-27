@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   RefreshCw, ChevronLeft, ChevronRight, MoreHorizontal,
   XCircle, Clock, FolderInput, BarChart3, Tag, MapPin,
-  CalendarDays, Package, CheckCircle2, AlertTriangle,
+  CalendarDays, Package, CheckCircle2,
   FileText, Search, TrendingUp, Activity,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -35,7 +35,7 @@ import {
   useDemandeScores, useForceClose, useExpireDemande, useRecategorize,
 } from '../hooks/useDemandes';
 import { useCategorySearch } from '../hooks/useCategories';
-import type { DemandeStatus, DemandeSummary, DemandeDetail, ScoreBreakdown } from '../types';
+import type { DemandeStatus, DemandeSummary, ScoreBreakdown } from '../types';
 
 // ── Animations ──────────────────────────────────────────────────────────────
 
@@ -51,7 +51,7 @@ const rowVariant = {
   hidden: { opacity: 0, x: -8 },
   show: (i: number) => ({
     opacity: 1, x: 0,
-    transition: { duration: 0.25, delay: i * 0.04, ease: 'easeOut' },
+    transition: { duration: 0.25, delay: i * 0.04, ease: 'easeOut' as const },
   }),
 };
 

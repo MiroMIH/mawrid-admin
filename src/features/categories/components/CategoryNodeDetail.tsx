@@ -4,7 +4,6 @@
  */
 import { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -26,7 +25,7 @@ import {
 import { CategoryStatsCards } from './CategoryStatsCards';
 import { CategoryAttributeTable } from './CategoryAttributeTable';
 import { useToast } from '@/components/ui/Toast';
-import type { NodeType } from '../types/category.types';
+import type { NodeType, CategoryTreeNode } from '../types/category.types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -130,7 +129,7 @@ export function CategoryNodeDetail() {
   const breadcrumb = buildBreadcrumb();
 
   // Find children nodes from tree
-  const findNode = (nodes: typeof tree, id: number): (typeof tree)[0] | null => {
+  const findNode = (nodes: CategoryTreeNode[] | undefined, id: number): CategoryTreeNode | null => {
     if (!nodes) return null;
     for (const n of nodes) {
       if (n.id === id) return n;
@@ -332,7 +331,7 @@ export function CategoryNodeDetail() {
                       </tr>
                     </thead>
                     <tbody>
-                      {treeNode.children.map((child, i) => {
+                      {treeNode.children.map((child: CategoryTreeNode, i: number) => {
                         const cnb = nodeTypeBadge[child.nodeType];
                         return (
                           <tr
