@@ -11,7 +11,7 @@ export const renameCategorySchema = z.object({
 });
 
 export const moveCategorySchema = z.object({
-  newParentId: z.number({ required_error: 'Please select a parent category' }),
+  newParentId: z.number({ message: 'Please select a parent category' }),
 });
 
 export const attributeSchema = z.object({

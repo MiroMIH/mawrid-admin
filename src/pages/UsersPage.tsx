@@ -31,7 +31,7 @@ const rowVariant = {
   hidden: { opacity: 0, x: -8 },
   show: (i: number) => ({
     opacity: 1, x: 0,
-    transition: { duration: 0.25, delay: i * 0.04, ease: 'easeOut' },
+    transition: { duration: 0.25, delay: i * 0.04, ease: 'easeOut' as const },
   }),
 };
 
